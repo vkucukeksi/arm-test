@@ -27,4 +27,13 @@ jobs:
           template: ./arm-templates/resourcegroup.json
           deploymentName: gr-githubactions
 
+      - name: Deploy Azure Storage Account
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: resourcegroup
+          resourceGroupName: rg-githubactions
+          subscriptionId: c005d172-14fd-4675-88c6-8c853880d916
+          template: ./arm-templates/storageaccount.json
+          parameters: ./arm-templates/storageaccount.parameters.json
+          deploymentMode: incremental
 
