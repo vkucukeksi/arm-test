@@ -38,5 +38,14 @@ jobs:
           parameters: ./arm-templates/storageaccount.parameters.json
           deploymentMode: incremental
 
-      - run: echo ${{ steps.storageAccountDeploy.outputs. BlobUri }}
+      - name: Deploy Azure Virtual Machine
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: resourcegroup
+          resourceGroupName: rg-githubactions
+          subscriptionId: c005d172-14fd-4675-88c6-8c853880d916
+          template: ./arm-templates/virtualmachine.json
+          parameters:
+            adminPassword="My$ecureP@ssword!"
+          deploymentMode: incremental
 
