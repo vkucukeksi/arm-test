@@ -8,7 +8,7 @@ on:
 
 env:
   resource_group_name: rg-githubactions
-  location: "UK South"
+  location: UK South
   subscriptionId: c005d172-14fd-4675-88c6-8c853880d916
 jobs:
   armDeploy:
