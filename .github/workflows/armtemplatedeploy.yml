@@ -1,4 +1,4 @@
-name: armtemplatedeployment
+name: armtemplatedeploymentv2
 
 on:
   push:
