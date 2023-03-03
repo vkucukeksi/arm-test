@@ -7,12 +7,16 @@ on:
   workflow_dispatch:
 
 env:
-  resource_group_name: rg-githubactions
-  location: UK South
   subscriptionId: c005d172-14fd-4675-88c6-8c853880d916
 jobs:
-  armDeploy:
+  armDeployStaging:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
+    env:
+      resource_group_name: rg-stg-githubactions
+      location: UK South
+    evironment:
+      name: staging
 
     steps:
       - uses: actions/checkout@v3
@@ -54,3 +58,54 @@ jobs:
             
           deploymentMode: incremental
 
+  armDeployProduction:
+    name: Deploy to Staging Production
+    runs-on: ubuntu-latest
+    env:
+      resource_group_name: rg-prod-githubactions
+      location: UK West
+    evironment:
+      name: production
+    needs: armDeployStaging
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Azure Resource Group ${{ env.resource_group_name }}
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: subscription
+          subscriptionId: ${{ env.subscriptionId }}
+          region: ${{ env.location }}
+          template: ./arm-templates/resourcegroup.json
+          deploymentName: ${{ env.resource_group_name }}
+
+      - name: Deploy Azure Storage Account
+        uses: Azure/arm-deploy@v1
+        id: storageAccountDeploy
+        with:
+          scope: resourcegroup
+          resourceGroupName: ${{ env.resource_group_name }}
+          subscriptionId: ${{ env.subscriptionId }}
+          template: ./arm-templates/storageaccount.json
+          parameters:
+            sku=Standard_LRS
+            storageAccountName=vkstg02
+            location="${{ env.location }}"
+          deploymentMode: incremental
+
+      - name: Deploy Azure Virtual Machine
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: resourcegroup
+          resourceGroupName: ${{ env.resource_group_name }}
+          subscriptionId: c005d172-14fd-4675-88c6-8c853880d916
+          template: ./arm-templates/virtualmachine.json
+          parameters:
+            adminPassword=${{ secrets.UBUNTU_ADMIN_PASSWORD }}
+            
+          deploymentMode: incremental
