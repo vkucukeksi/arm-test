@@ -1,4 +1,4 @@
-param vnetprefix string
+param VnetPrefix string
 param location string = resourceGroup().location
 
 var vNetName = '${vnetprefix}-vnet'
